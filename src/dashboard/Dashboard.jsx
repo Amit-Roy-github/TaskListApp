@@ -75,7 +75,7 @@ const Dashboard = () => {
       {displayForm && (
         <Form
           isEdit={isEdit}
-          initialFormData={isEdit ? initialFormData : {}}
+          initialFormData={isEdit ? initialFormData : { tag: tag }}
           setDisplayForm={setDisplayForm}
           setTaskList={setTaskList}
           setRefresh={setRefresh}
