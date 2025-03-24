@@ -33,14 +33,22 @@ const Dashboard = () => {
     const handleKeyboardAdd = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "i") {
         e.preventDefault();
-        setDisplayForm(true);
+        setDisplayForm(!displayForm);
       }
     };
+    const handleKeyboardBack = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "i") {
+        e.preventDefault();
+        navigate("/");
+      }
+    };
+    document.addEventListener("keydown", handleKeyboardBack);
     document.addEventListener("keydown", handleKeyboardAdd);
     return () => {
+      document.removeEventListener("keydown", handleKeyboardBack);
       document.removeEventListener("keydown", handleKeyboardAdd);
     };
-  }, []);
+  }, [displayForm]);
   return (
     <>
       <div>

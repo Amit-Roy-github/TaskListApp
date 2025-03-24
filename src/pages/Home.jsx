@@ -1,15 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect , useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Home = () => {
   const navigate = useNavigate();
   const [tags, setTags] = useState([]);
-  const [addTag, setAddTag] = useState(true);
+  const [addTag, setAddTag] = useState(false);
   const [newTag, setNewTag] = useState("");
+
+  const inputRef = useRef(null);
 
   const handleTagClick = (tag) => {
     navigate(`/dashboard?tag=${tag}`);
+  };
+
+  const handleSaveTag = () => {
+    if (newTag.trim() !== "") {
+      setTags([...tags, newTag]);
+      setNewTag("");
+    }
   };
 
   useEffect(() => {
@@ -30,6 +39,24 @@ const Home = () => {
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    const handleKeyDownAddTag = (e) => {
+      if (e.key === "Enter") {
+        if (!addTag) {
+          setAddTag(true);
+          setTimeout(() => {
+            if (inputRef.current) {
+              inputRef.current.focus();
+            }
+          }, 0);
+        } else {
+          handleSaveTag();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDownAddTag);
+    return () => window.removeEventListener("keydown", handleKeyDownAddTag);
+  }, [addTag, newTag]);
 
   return (
     <>
@@ -57,6 +84,7 @@ const Home = () => {
           {addTag && (
             <div className="flex gap-2">
               <input
+                ref={inputRef}
                 type="text"
                 className="text-gray-400 bg-black text-sm font-bold px-4 py-2 border-2 border-gray-900 rounded-md text-sky-600 focus:outline-none"
                 value={newTag}
@@ -64,7 +92,7 @@ const Home = () => {
               />
               <button
                 className="bg-green-900  px-4 py-2 rounded-md"
-                onClick={() => setTags([...tags, newTag])}
+                onClick={handleSaveTag}
               >
                 +
               </button>

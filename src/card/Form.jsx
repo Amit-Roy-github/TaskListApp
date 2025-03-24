@@ -65,16 +65,6 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
       }
     };
 
-    const handleKeyboardClose = (e) => {
-      console.table(e);
-      if (
-        (e.metaKey || e.ctrlKey) &&
-        (e.key === "Delete" || e.key === "Backspace")
-      ) {
-        e.preventDefault();
-        setDisplayForm(false);
-      }
-    };
 
     const handleContentKeyDown = (e, index) => {
       console.table(e);
@@ -97,7 +87,6 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
 
     // Add event listeners
     window.addEventListener("keydown", handleKeyboardSave);
-    window.addEventListener("keydown", handleKeyboardClose);
 
     // Add event listeners for content inputs
     contentRefs.current.forEach((ref, index) => {
@@ -109,7 +98,6 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
     // Cleanup function
     return () => {
       window.removeEventListener("keydown", handleKeyboardSave);
-      window.removeEventListener("keydown", handleKeyboardClose);
 
       // Remove event listeners from content inputs
       contentRefs.current.forEach((ref, index) => {

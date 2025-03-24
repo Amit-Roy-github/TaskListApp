@@ -30,7 +30,6 @@ fi
 
 npm install 
 
-
 if [[ $SHELL == "/bin/zsh" ]]; then
     echo "alias startToDoApp='npm run dev && npm run startBackend'" >> ~/.zshrc
     source ~/.zshrc
