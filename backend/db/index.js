@@ -1,9 +1,19 @@
 import connectDB from "../../database/src/db/index.js";
 import Task from "../../database/src/schema/taskData.js";
 
+const logger = (data) => {
+  const logData = {
+    title: data.title,
+    contents: data.contents.join(" *|* "),
+    tag: data.tag,
+    isChecked: data.isChecked,
+  };
+  console.table(logData);
+};
+
 const saveData = async (req, res) => {
   const data = req.body;
-  console.table(data);
+  logger(data);
   const newTask = new Task({ ...data });
   try {
     await newTask.save();
@@ -65,7 +75,7 @@ const deleteTask = async (req, res) => {
 const updateData = async (req, res) => {
   try {
     const { _id, title, isChecked, contents, tag } = req.body;
-    console.table(req.body);
+    logger(req.body);
     if (!title) {
       return res.status(400).json({ error: "Title is required to update" });
     }
