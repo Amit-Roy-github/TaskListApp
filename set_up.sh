@@ -42,6 +42,6 @@ else
 fi
 
 echo "Setup complete"
-echo "You can now start the task app with 'startToDoApp'"
-npm run dev & npm run startBackend
+echo "You can now start the task app with"
+echo "Open a new tab and run startToDoApp"
 
