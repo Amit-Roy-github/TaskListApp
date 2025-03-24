@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 
 const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
@@ -21,7 +21,7 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
     );
   }, [formData.contents.length]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
     if (formData.title === "") {
       console.error("Title can not be empty");
@@ -52,8 +52,15 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
         .catch((error) => console.error("Error creating task:", error));
     }
     setDisplayForm(false);
-  };
-
+  }, [formData, isEdit, setRefresh, setDisplayForm]);
+  // only apply when form is opened 
+  useEffect(() => {
+    if (!isEdit) {
+      contentRefs.current[0].focus();
+    } else if (contentRefs.current.length > 1) {
+      contentRefs.current.at(-1).focus();
+    }
+  }, [setDisplayForm]);
   useEffect(() => {
     const handleKeyboardSave = (e) => {
       if (
@@ -64,10 +71,7 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
         handleSubmit(e);
       }
     };
-
-
     const handleContentKeyDown = (e, index) => {
-      console.table(e);
       if (e.key === "Enter" || e.key === "Return") {
         e.preventDefault();
         const newData = { ...formData };
@@ -84,17 +88,14 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
         }, 0);
       }
     };
-
     // Add event listeners
     window.addEventListener("keydown", handleKeyboardSave);
-
     // Add event listeners for content inputs
     contentRefs.current.forEach((ref, index) => {
       if (ref) {
         ref.addEventListener("keydown", (e) => handleContentKeyDown(e, index));
       }
     });
-
     // Cleanup function
     return () => {
       window.removeEventListener("keydown", handleKeyboardSave);
@@ -121,6 +122,8 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
             <input
               className="p-2 border rounded-md border-blue-600 focus:outline-blue-500"
               type="text"
+              key={0}
+              ref={(el) => (contentRefs.current[0] = el)}
               id="title"
               value={formData.title}
               onChange={(e) => {
@@ -154,8 +157,8 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
             <label className="pb-1">Contents</label>
             {formData.contents.map((value, index) => (
               <input
-                key={index}
-                ref={(el) => (contentRefs.current[index] = el)}
+                key={index + 1}
+                ref={(el) => (contentRefs.current[index + 1] = el)}
                 className="p-2 m-[2px] border font-normal rounded-md border-blue-600 focus:outline-blue-500"
                 type="text"
                 id={`content-${index}`}
