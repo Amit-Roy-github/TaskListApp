@@ -177,13 +177,13 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
         </form>
         <div className="flex gap-x-2">
           <button
-            className="bg-green-500 px-4 py-2 rounded"
+            className="bg-green-900 px-4 py-2 rounded font-semibold text-slate-400"
             onClick={handleSubmit}
           >
             Save
           </button>
           <button
-            className="bg-red-500 px-4 py-2 rounded"
+            className="bg-red-900 px-4 py-2 rounded font-semibold text-slate-400"
             onClick={() => setDisplayForm(false)}
           >
             Close
