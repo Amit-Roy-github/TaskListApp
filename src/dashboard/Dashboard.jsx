@@ -34,6 +34,7 @@ const Dashboard = () => {
       if ((e.metaKey || e.ctrlKey) && e.key === "i") {
         e.preventDefault();
         setDisplayForm(!displayForm);
+        setInitialFormData({ tag: tag });
       }
     };
     const handleKeyboardBack = (e) => {

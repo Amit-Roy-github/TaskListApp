@@ -12,6 +12,7 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
 
   // Create refs array for content inputs
   const contentRefs = useRef([]);
+  const singleRef = useRef(null);
 
   // Update refs when contents change
   useEffect(() => {
@@ -34,6 +35,7 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
     for (let i = 0; i < dataToSend.contents.length; i++) {
       if (dataToSend.contents[i] === "") {
         dataToSend.contents.splice(i, 1);
+        i--; // Adjust index after removing an element
       }
     }
     if (isEdit) {
@@ -56,11 +58,13 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
   // only apply when form is opened 
   useEffect(() => {
     if (!isEdit) {
-      contentRefs.current[0].focus();
+      singleRef.current.focus();
     } else if (contentRefs.current.length > 1) {
-      contentRefs.current.at(-1).focus();
+      setTimeout(() => {
+        contentRefs.current.at(-1).focus();
+      }, 0);
     }
-  }, [setDisplayForm]);
+  }, [setDisplayForm, isEdit]);
   useEffect(() => {
     const handleKeyboardSave = (e) => {
       if (
@@ -74,10 +78,15 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
     const handleContentKeyDown = (e, index) => {
       if (e.key === "Enter" || e.key === "Return") {
         e.preventDefault();
-        const newData = { ...formData };
-        if (newData.contents.at(-1) === "") return;
-        newData.contents = [...newData.contents, ""];
-        setFormData(newData);
+        // Create a new contents array with an empty string at the end
+        const newContents = [...formData.contents];
+        if( newContents.at(-1) === "")return;
+        newContents.splice(index + 1, 0, ""); // Insert empty string after current index
+        
+        setFormData(prevData => ({
+          ...prevData,
+          contents: newContents
+        }));
 
         // Focus on the new input in the next render cycle
         setTimeout(() => {
@@ -93,7 +102,10 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
     // Add event listeners for content inputs
     contentRefs.current.forEach((ref, index) => {
       if (ref) {
-        ref.addEventListener("keydown", (e) => handleContentKeyDown(e, index));
+        const handler = (e) => handleContentKeyDown(e, index);
+        ref.addEventListener("keydown", handler);
+        // Store the handler function to properly remove it later
+        ref._keydownHandler = handler;
       }
     });
     // Cleanup function
@@ -101,11 +113,9 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
       window.removeEventListener("keydown", handleKeyboardSave);
 
       // Remove event listeners from content inputs
-      contentRefs.current.forEach((ref, index) => {
-        if (ref) {
-          ref.removeEventListener("keydown", (e) =>
-            handleContentKeyDown(e, index)
-          );
+      contentRefs.current.forEach((ref) => {
+        if (ref && ref._keydownHandler) {
+          ref.removeEventListener("keydown", ref._keydownHandler);
         }
       });
     };
@@ -123,7 +133,7 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
               className="p-2 border rounded-md border-blue-600 focus:outline-blue-500"
               type="text"
               key={0}
-              ref={(el) => (contentRefs.current[0] = el)}
+              ref={(el) => (singleRef.current = el)}
               id="title"
               value={formData.title}
               onChange={(e) => {
@@ -157,8 +167,8 @@ const Form = ({ initialFormData, setDisplayForm, isEdit, tag, setRefresh }) => {
             <label className="pb-1">Contents</label>
             {formData.contents.map((value, index) => (
               <input
-                key={index + 1}
-                ref={(el) => (contentRefs.current[index + 1] = el)}
+                key={index}
+                ref={(el) => (contentRefs.current[index] = el)}
                 className="p-2 m-[2px] border font-normal rounded-md border-blue-600 focus:outline-blue-500"
                 type="text"
                 id={`content-${index}`}
